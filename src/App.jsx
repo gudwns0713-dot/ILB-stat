@@ -1,5 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
+import {
+  collection,
+  doc,
+  setDoc,
+  getDocs,
+} from 'firebase/firestore';
 
+import {
+  auth,
+  login,
+  db,
+} from './firebase';
+
+import { onAuthStateChanged } from 'firebase/auth';
 const createId = () =>
   `${Date.now()}_${Math.random().toString(16).slice(2)}`;
 
@@ -195,46 +208,84 @@ function calcHitter(h) {
 }
 
 export default function BaseballRecordManager() {
-  const [games, setGames] = useState(() => {
-    const saved = localStorage.getItem(
-      'baseball-manager-games'
-    );
+const [games, setGames] = useState([
+  createGame(1),
+]);
 
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-
-        if (
-          Array.isArray(parsed) &&
-          parsed.length > 0
-        ) {
-          return parsed;
-        }
-      } catch {}
-    }
-
-    return [createGame(1)];
-  });
-
-  const [selectedGameId, setSelectedGameId] =
-    useState(() => games[0]?.id ?? 1);
+const [selectedGameId, setSelectedGameId] =
+  useState(1);
 
   const [mainTab, setMainTab] =
     useState('games');
+    const [user, setUser] = useState(null);
 
   const [gameViewTab, setGameViewTab] =
     useState('record');
 
-  useEffect(() => {
-    localStorage.setItem(
-      'baseball-manager-games',
-      JSON.stringify(games)
+useEffect(() => {
+  const unsub = onAuthStateChanged(
+    auth,
+    (u) => {
+      setUser(u);
+    }
+  );
+
+  return unsub;
+}, []);
+
+useEffect(() => {
+  if (!user) return;
+
+  const loadGames = async () => {
+    const snapshot = await getDocs(
+      collection(db, 'games')
     );
-  }, [games]);
+
+    const loaded = snapshot.docs.map((d) =>
+      d.data()
+    );
+
+    if (loaded.length > 0) {
+      setGames(loaded);
+      setSelectedGameId(
+        loaded[0].id
+      );
+    } else {
+      const first = createGame(1);
+
+      setGames([first]);
+      setSelectedGameId(first.id);
+    }
+  };
+
+  loadGames();
+}, [user]);
+
+useEffect(() => {
+  if (!user) return;
+
+  const saveGames = async () => {
+    for (const game of games) {
+      await setDoc(
+        doc(db, 'games', String(game.id)),
+        game
+      );
+    }
+  };
+
+  saveGames();
+}, [games, user]);
 
   const selectedGame =
     games.find((g) => g.id === selectedGameId) ||
     games[0];
+    if (!selectedGame) {
+  return (
+    <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
+      로딩중...
+    </div>
+  );
+}
 
   const updateSelectedGame = (updater) => {
     setGames((prev) =>
@@ -566,6 +617,18 @@ export default function BaseballRecordManager() {
           <h1 className="text-5xl font-black">
             ILB STATS
           </h1>
+          {!user ? (
+  <button
+    onClick={login}
+    className="bg-green-600 px-4 py-2 rounded-xl font-bold mt-3"
+  >
+    Google 로그인
+  </button>
+) : (
+  <div className="mt-3 font-bold text-green-400">
+    {user.displayName}
+  </div>
+)}
 
           <button
             onClick={addGame}

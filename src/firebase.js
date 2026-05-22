@@ -1,4 +1,11 @@
 import { initializeApp } from 'firebase/app';
+
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from 'firebase/auth';
+
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -7,10 +14,18 @@ const firebaseConfig = {
   projectId: "ilb-stat",
   storageBucket: "ilb-stat.firebasestorage.app",
   messagingSenderId: "192817767937",
-  appId: "1:192817767937:web:4c3e6c1c9608456d528200",
-  measurementId: "G-DY8HXMLSQ4"
+  appId: "1:192817767937:web:59e5c0c709866dfb528200",
+  measurementId: "G-Q6GJHE4JW7"
 };
 
 const app = initializeApp(firebaseConfig);
 
 export const db = getFirestore(app);
+
+export const auth = getAuth(app);
+
+export const provider =
+  new GoogleAuthProvider();
+
+export const login = () =>
+  signInWithPopup(auth, provider);
