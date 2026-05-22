@@ -47,20 +47,73 @@ const createPitcher = (name = '') => ({
 });
 
 const RESULT_IMPACTS = {
-  안타: { ab: 1, h: 1 },
-  '2루타': { ab: 1, h: 1, double: 1 },
-  '3루타': { ab: 1, h: 1, triple: 1 },
-  홈런: { ab: 1, h: 1, hr: 1 },
-  삼진: { ab: 1, so: 1 },
-  볼넷: { bb: 1 },
-  사구: { hbp: 1 },
-  실책: { ab: 1, error: 1 },
-  야수선택: { ab: 1, fc: 1 },
-  병살: { ab: 1, so: 1 },
-  땅볼: { ab: 1 },
-  뜬공: { ab: 1 },
-};
+  안타: { pa: 1, ab: 1, h: 1 },
 
+  '2루타': {
+    pa: 1,
+    ab: 1,
+    h: 1,
+    double: 1,
+  },
+
+  '3루타': {
+    pa: 1,
+    ab: 1,
+    h: 1,
+    triple: 1,
+  },
+
+  홈런: {
+    pa: 1,
+    ab: 1,
+    h: 1,
+    hr: 1,
+  },
+
+  삼진: {
+    pa: 1,
+    ab: 1,
+    so: 1,
+  },
+
+  볼넷: {
+    pa: 1,
+    bb: 1,
+  },
+
+  사구: {
+    pa: 1,
+    hbp: 1,
+  },
+
+  실책: {
+    pa: 1,
+    ab: 1,
+    error: 1,
+  },
+
+  야수선택: {
+    pa: 1,
+    ab: 1,
+    fc: 1,
+  },
+
+  병살: {
+    pa: 1,
+    ab: 1,
+    so: 1,
+  },
+
+  땅볼: {
+    pa: 1,
+    ab: 1,
+  },
+
+  뜬공: {
+    pa: 1,
+    ab: 1,
+  },
+};
 function toNum(v) {
   const n = Number(v);
   return Number.isFinite(n) ? n : 0;
@@ -70,16 +123,25 @@ function clone(obj) {
   return { ...obj };
 }
 
-function applyHitterImpact(hitter, result, pitchCount, sign = 1) {
+function applyHitterImpact(
+  hitter,
+  result,
+  pitchCount,
+  sign = 1
+) {
   const next = clone(hitter);
-  const impact = RESULT_IMPACTS[result] || {};
 
-  next.pa += sign;
-  next.pitches += sign * (pitchCount + 1);
+  const impact =
+    RESULT_IMPACTS[result] || {};
 
-  Object.entries(impact).forEach(([key, value]) => {
-    next[key] += sign * value;
-  });
+  next.pitches +=
+    sign * (pitchCount + 1);
+
+  Object.entries(impact).forEach(
+    ([key, value]) => {
+      next[key] += sign * value;
+    }
+  );
 
   return next;
 }
@@ -1098,6 +1160,8 @@ export default function BaseballRecordManager() {
                     <th>타석</th>
                     <th>안타</th>
                     <th>홈런</th>
+                    <th>볼넷</th>
+                    <th>사구</th>
                     <th>타율</th>
                     <th>출루율</th>
                     <th>OPS</th>
@@ -1115,6 +1179,8 @@ export default function BaseballRecordManager() {
                       <td>{h.pa}</td>
                       <td>{h.h}</td>
                       <td>{h.hr}</td>
+                      <td>{h.bb}</td>
+                      <td>{h.hbp}</td>
                       <td>{h.avg}</td>
                       <td>{h.obp}</td>
                       <td>{h.ops}</td>
