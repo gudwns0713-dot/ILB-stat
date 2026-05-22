@@ -234,7 +234,6 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
-  if (!user) return;
 
   const loadGames = async () => {
     const snapshot = await getDocs(
@@ -266,7 +265,6 @@ useEffect(() => {
 }, [user]);
 
 useEffect(() => {
-  if (!user) return;
 
   const saveGames = async () => {
     for (const game of games) {
