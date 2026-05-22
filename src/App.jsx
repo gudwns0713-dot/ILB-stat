@@ -253,6 +253,10 @@ useEffect(() => {
     } else {
       const first = createGame(1);
 
+      await setDoc(
+  doc(db, 'games', String(first.id)),
+  first
+);
       setGames([first]);
       setSelectedGameId(first.id);
     }
