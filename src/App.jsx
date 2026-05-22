@@ -4,6 +4,7 @@ import {
   doc,
   setDoc,
   getDocs,
+  deleteDoc,
 } from 'firebase/firestore';
 
 import {
@@ -313,7 +314,7 @@ useEffect(() => {
     setSelectedGameId(id);
   };
 
-  const deleteGame = (id) => {
+const deleteGame = async (id) => {
     const filtered = games.filter(
       (g) => g.id !== id
     );
@@ -325,7 +326,9 @@ useEffect(() => {
       setSelectedGameId(reset.id);
       return;
     }
-
+await deleteDoc(
+  doc(db, 'games', String(id))
+);
     setGames(filtered);
     setSelectedGameId(filtered[0].id);
   };
