@@ -283,13 +283,6 @@ useEffect(() => {
   const selectedGame =
     games.find((g) => g.id === selectedGameId) ||
     games[0];
-    if (!selectedGame) {
-  return (
-    <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
-      로딩중...
-    </div>
-  );
-}
 
   const updateSelectedGame = (updater) => {
     setGames((prev) =>
