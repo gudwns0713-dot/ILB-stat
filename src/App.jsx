@@ -265,18 +265,25 @@ useEffect(() => {
 }, [user]);
 
 useEffect(() => {
+  if (games.length === 0) return;
 
   const saveGames = async () => {
-    for (const game of games) {
-      await setDoc(
-        doc(db, 'games', String(game.id)),
-        game
-      );
+    try {
+      for (const game of games) {
+        await setDoc(
+          doc(db, 'games', String(game.id)),
+          game
+        );
+      }
+
+      console.log('Firebase 저장 완료');
+    } catch (err) {
+      console.error(err);
     }
   };
 
   saveGames();
-}, [games, user]);
+}, [games]);
 
   const selectedGame =
     games.find((g) => g.id === selectedGameId) ||
