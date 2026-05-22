@@ -266,10 +266,28 @@ useEffect(() => {
 }, [user]);
 
 useEffect(() => {
-  if (games.length === 0) return;
-
   const saveGames = async () => {
     try {
+      const snapshot = await getDocs(
+        collection(db, 'games')
+      );
+
+      const firebaseIds = snapshot.docs.map(
+        (d) => d.id
+      );
+
+      const currentIds = games.map((g) =>
+        String(g.id)
+      );
+
+      for (const id of firebaseIds) {
+        if (!currentIds.includes(id)) {
+          await deleteDoc(
+            doc(db, 'games', id)
+          );
+        }
+      }
+
       for (const game of games) {
         await setDoc(
           doc(db, 'games', String(game.id)),
