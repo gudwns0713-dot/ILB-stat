@@ -397,14 +397,48 @@ export default function BaseballRecordManager() {
     });
   };
 
-  const deleteLog = (index) => {
-    updateSelectedGame((g) => ({
+ const deleteLog = (index) => {
+  updateSelectedGame((g) => {
+    const log = g.logs[index];
+
+    if (!log) return g;
+
+    let hitters = [...g.hitters];
+
+    const hitterIndex = hitters.findIndex(
+      (h) => h.name === log.batter
+    );
+
+    if (hitterIndex !== -1) {
+      hitters[hitterIndex] = applyHitterImpact(
+        hitters[hitterIndex],
+        log.result,
+        (log.pitches?.length || 1) - 1,
+        -1
+      );
+
+      const h = hitters[hitterIndex];
+
+      const totalStats =
+        h.pa +
+        h.ab +
+        h.h +
+        h.hr +
+        h.bb +
+        h.so;
+
+      if (totalStats <= 0) {
+        hitters.splice(hitterIndex, 1);
+      }
+    }
+
+    return {
       ...g,
-      logs: g.logs.filter(
-        (_, i) => i !== index
-      ),
-    }));
-  };
+      hitters,
+      logs: g.logs.filter((_, i) => i !== index),
+    };
+  });
+};
 
   const totalHitters = useMemo(() => {
     const map = {};
